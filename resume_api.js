@@ -1,33 +1,67 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const db = require('./config/database');
+const resumeRoutes = require('./routes/resumeRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-const db = new sqlite3.Database('CV_API.db', (err) => {
-    if (err) {
-        console.error('Ошибка подключения к базе данных:', err);
-    } else {
-        console.log('Подключено к SQLite базе данных');
+app.use(express.json()); // Парсинг JSON
+
+// Инициализация базы данных
+async function initializeDatabase() {
+    try {
+        await db.connect('CV_API.db');
+    } catch (error) {
+        console.error('Ошибка подключения к базе данных:', error);
+        process.exit(1);
     }
-});
+}
 
-app.get('/resume/list', function (req,res) {
-    db.all("SELECT * FROM resume", [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
+// Маршруты API
+app.use('/api/resumes', resumeRoutes);
+app.use('/api/contacts', contactRoutes);
+
+// Корневой маршрут
+app.get('/', (req, res) => {
+    res.json({
+        message: 'CV API работает',
+        version: '1.0.0',
+        endpoints: {
+            resumes: '/api/resumes',
+            contacts: '/api/contacts'
         }
-        res.json(rows);
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}`);
+// Обработка 404
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        error: 'Маршрут не найден'
+    });
 });
 
-// Закрытие соединения с БД при завершении
+// Запуск сервера
+async function startServer() {
+    await initializeDatabase();
+
+    app.listen(PORT, () => {
+        console.log(`Сервер запущен на http://localhost:${PORT}`);
+    });
+}
+
+startServer().catch(console.error);
+
+// Корректное завершение работы
 process.on('SIGINT', () => {
+    console.log('Завершение работы сервера...');
     db.close();
-    process.exit();
+    process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+    console.log('Получен сигнал завершения работы...');
+    db.close();
+    process.exit(0);
 });
