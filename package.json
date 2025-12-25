@@ -9,5 +9,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexRashidov/resume_api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlexRashidov/resume_api/issues"
+  },
+  "homepage": "https://github.com/AlexRashidov/resume_api#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "sqlite3": "^5.1.7"
+  }
 }
