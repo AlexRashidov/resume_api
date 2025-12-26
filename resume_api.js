@@ -2,10 +2,15 @@ const express = require('express');
 const db = require('./config/database');
 const resumeRoutes = require('./routes/resumeRoutes');
 const contactRoutes = require('./routes/contactRoutes');
-
+const cors = require('cors')
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors({
+    origin: 'http://localhost:5173', // Только твой Vue проект
+    methods: ['GET', 'POST'],
+
+}));
 app.use(express.json()); // Парсинг JSON
 
 // Инициализация базы данных
