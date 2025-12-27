@@ -17,10 +17,10 @@ const validateEmail = (email) => {
 class ContactController {
     async sendMeMessage(req, res) {
         try {
-            const { company_name, email, message } = req.body;
+            const { name, email, message } = req.body;
 
             // Валидация
-            if (!company_name || !email || !message) {
+            if (!name || !email || !message) {
                 return res.status(400).json({
                     success: false,
                     error: "Заполните обязательные поля: company_name, email, message"
@@ -36,14 +36,14 @@ class ContactController {
             }
 
             // Очистка данных от XSS
-            const cleanCompany = sanitizeInput(company_name);
+            const cleanCompany = sanitizeInput(name);
             const cleanEmail = sanitizeInput(email);
             const cleanMessage = sanitizeInput(message);
 
             const database = db.getDB();
 
             database.run(
-                'INSERT INTO feedback (company_name, email, message) VALUES (?, ?, ?)',
+                'INSERT INTO feedback (name, email, message) VALUES (?, ?, ?)',
                 [cleanCompany, cleanEmail, cleanMessage],
                 function(err) {
                     if (err) {
